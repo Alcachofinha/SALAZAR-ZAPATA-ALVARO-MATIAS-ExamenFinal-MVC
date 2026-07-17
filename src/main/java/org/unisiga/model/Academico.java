@@ -7,12 +7,25 @@ import java.util.List;
  * Representa al profesor encargado de dictar cátedras.
  */
 public class Academico extends MiembroUniversitario {
+
+    private static final long serialVersionUID = 1L;
+
     private String idEmpleado;
     private String tipoContrato;
-    private Departamento departamento; // Relación de agregación
+
+    // Relación de agregación con Departamento.
+    private Departamento departamento;
+
+    // Secciones que dicta el académico.
     private List<Seccion> seccionesDictadas;
 
-    public Academico(String rut, String nombre, String correo, String idEmpleado, String tipoContrato) {
+    public Academico(
+            String rut,
+            String nombre,
+            String correo,
+            String idEmpleado,
+            String tipoContrato
+    ) {
         super(rut, nombre, correo);
         this.idEmpleado = idEmpleado;
         this.tipoContrato = tipoContrato;
@@ -21,22 +34,53 @@ public class Academico extends MiembroUniversitario {
 
     @Override
     public boolean login(String password) {
-        // TODO: Implementar validación simulada de MFA docente (requiere que el password contenga '@')
-        throw new UnsupportedOperationException("Método login() no implementado aún.");
+        // TODO: Implementar validación simulada de MFA docente.
+        // Regla indicada: la contraseña debe contener '@'.
+        throw new UnsupportedOperationException(
+                "Método login() no implementado aún."
+        );
     }
 
     /**
-     * Registra la nota de un estudiante para una evaluación de la asignatura.
-     * [REGLAS]: Validar parámetros, rango de notas [1.0, 7.0] y que la evaluación pertenezca a la asignatura.
+     * Registra la nota de un estudiante para una evaluación.
+     *
+     * [REGLAS]&#58;      * - Validar los parámetros.
+     * - Validar el rango de notas [1.0, 7.0].
+     * - Validar que la evaluación pertenezca a la asignatura.
+     *
+     * @param inscripcion inscripción del estudiante
+     * @param evaluacion evaluación que será calificada
+     * @param valorNota nota obtenida
      */
-    public void registrarNota(Inscripcion inscripcion, Evaluacion evaluacion, float valorNota) {
-        // TODO: Implementar la validación e inserción/actualización de la nota (Tres Vías)
-        throw new UnsupportedOperationException("Método registrarNota() no implementado aún.");
+    public void registrarNota(
+            Inscripcion inscripcion,
+            Evaluacion evaluacion,
+            float valorNota
+    ) {
+        // TODO: Implementar la validación y la inserción
+        // o actualización de la calificación de tres vías.
+        throw new UnsupportedOperationException(
+                "Método registrarNota() no implementado aún."
+        );
     }
 
-    // Getters y Setters
-    public String getIdEmpleado() { return idEmpleado; }
-    public Departamento getDepartamento() { return departamento; }
-    public void setDepartamento(Departamento depto) { this.departamento = depto; }
-    public List<Seccion> getSeccionesDictadas() { return seccionesDictadas; }
+    public String getIdEmpleado() {
+        return idEmpleado;
+    }
+
+    public String getTipoContrato() {
+        return tipoContrato;
+    }
+
+    public Departamento getDepartamento() {
+        return departamento;
+    }
+
+    public void setDepartamento(Departamento depto) {
+        this.departamento = depto;
+    }
+
+    public List<Seccion> getSeccionesDictadas() {
+        return seccionesDictadas;
+    }
 }

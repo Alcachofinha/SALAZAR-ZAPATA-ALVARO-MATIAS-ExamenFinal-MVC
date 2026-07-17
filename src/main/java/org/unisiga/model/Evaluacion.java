@@ -1,20 +1,38 @@
 package org.unisiga.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Hito evaluativo del plan unificado de la asignatura.
  */
-public class Evaluacion {
+public class Evaluacion implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     private int id;
     private String titulo;
     private float ponderacion;
-    private Asignatura asignatura; // Contenedor (Composición)
+
+    // Asignatura que contiene la evaluación.
+    private Asignatura asignatura;
+
+    // Calificaciones registradas para esta evaluación.
     private List<Calificacion> calificaciones;
 
-    // [DISEÑO TÉCNICO]: Constructor package-private para forzar que solo 'Asignatura' lo invoque.
-    Evaluacion(int id, String titulo, float ponderacion, Asignatura asignatura) {
+    /**
+     * Constructor package-private.
+     *
+     * Solo puede ser utilizado directamente por clases
+     * pertenecientes al paquete org.unisiga.model.
+     */
+    Evaluacion(
+            int id,
+            String titulo,
+            float ponderacion,
+            Asignatura asignatura
+    ) {
         this.id = id;
         this.titulo = titulo;
         this.ponderacion = ponderacion;
@@ -22,9 +40,23 @@ public class Evaluacion {
         this.calificaciones = new ArrayList<>();
     }
 
-    public int getId() { return id; }
-    public String getTitulo() { return titulo; }
-    public float getPonderacion() { return ponderacion; }
-    public Asignatura getAsignatura() { return asignatura; }
-    public List<Calificacion> getCalificaciones() { return calificaciones; }
+    public int getId() {
+        return id;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public float getPonderacion() {
+        return ponderacion;
+    }
+
+    public Asignatura getAsignatura() {
+        return asignatura;
+    }
+
+    public List<Calificacion> getCalificaciones() {
+        return calificaciones;
+    }
 }

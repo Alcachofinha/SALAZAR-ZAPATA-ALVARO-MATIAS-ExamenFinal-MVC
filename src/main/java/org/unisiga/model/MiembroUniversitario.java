@@ -1,31 +1,60 @@
 package org.unisiga.model;
 
+import java.io.Serializable;
+
 /**
  * Clase Abstracta Base que representa a cualquier miembro de la universidad.
- * [EVALUACIÓN]: El estudiante debe comprender el concepto de herencia y atributos protegidos.
+ * [EVALUACIÓN]&#58; El estudiante debe comprender el concepto de herencia
+ * y atributos protegidos.
  */
-public abstract class MiembroUniversitario {
+public abstract class MiembroUniversitario implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     protected String rut;
     protected String nombre;
     protected String correoInstitucional;
 
-    public MiembroUniversitario(String rut, String nombre, String correoInstitucional) {
+    public MiembroUniversitario(
+            String rut,
+            String nombre,
+            String correoInstitucional
+    ) {
         this.rut = rut;
         this.nombre = nombre;
         this.correoInstitucional = correoInstitucional;
     }
 
     /**
-     * TODO: Firma abstracta para el inicio de sesión.
-     * Cada subclase (Estudiante/Académico) debe sobreescribirla con sus reglas de negocio.
+     * Firma abstracta para el inicio de sesión.
+     * Cada subclase debe implementar sus propias reglas.
+     *
+     * @param password contraseña ingresada
+     * @return true cuando la contraseña cumple la regla definida
      */
     public abstract boolean login(String password);
 
-    // Getters y Setters
-    public String getRut() { return rut; }
-    public void setRut(String rut) { this.rut = rut; }
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
-    public String getCorreoInstitucional() { return correoInstitucional; }
-    public void setCorreoInstitucional(String correo) { this.correoInstitucional = correo; }
+    public String getRut() {
+        return rut;
+    }
+
+    public void setRut(String rut) {
+        this.rut = rut;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getCorreoInstitucional() {
+        return correoInstitucional;
+    }
+
+    public void setCorreoInstitucional(String correo) {
+        this.correoInstitucional = correo;
+    }
 }
