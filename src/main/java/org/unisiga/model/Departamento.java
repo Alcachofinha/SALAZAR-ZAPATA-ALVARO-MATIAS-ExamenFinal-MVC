@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Representa un Departamento Académico.
+ * Representa un departamento académico de la universidad.
  *
- * [EVALUACIÓN]&#58; Demostrar la implementación del concepto de agregación.
- * El académico pertenece al departamento, pero conserva un ciclo
- * de vida independiente.
+ * Relación UML:
+ * Un Departamento tiene cero o muchos académicos.
+ *
+ * La relación es una agregación porque el académico
+ * puede existir independientemente del departamento.
  */
 public class Departamento implements Serializable {
 
@@ -20,22 +22,72 @@ public class Departamento implements Serializable {
     private List<Academico> academicos;
 
     public Departamento(String codigoDepto, String nombre) {
-        this.codigoDepto = codigoDepto;
-        this.nombre = nombre;
+
+        if (codigoDepto == null || codigoDepto.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "El código del departamento no puede estar vacío."
+            );
+        }
+
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "El nombre del departamento no puede estar vacío."
+            );
+        }
+
+        this.codigoDepto = codigoDepto.trim();
+        this.nombre = nombre.trim();
         this.academicos = new ArrayList<>();
     }
 
     /**
-     * Asocia un académico con el departamento.
+     * Asocia un académico con este departamento.
      *
-     * @param acad académico que será asociado
+     * La asociación se realiza en ambos sentidos:
+     *
+     * Departamento -> Academico
+     * Academico -> Departamento
+     *
+     * @param academico académico que será asociado
      */
-    public void asociarAcademico(Academico acad) {
-        // TODO: Asociar el académico asegurando
-        // la bidireccionalidad segura.
-        throw new UnsupportedOperationException(
-                "Método asociarAcademico() no implementado aún."
-        );
+    public void asociarAcademico(Academico academico) {
+
+        if (academico == null) {
+            throw new IllegalArgumentException(
+                    "El académico no puede ser nulo."
+            );
+        }
+
+        academico.setDepartamento(this);
+    }
+
+    /**
+     * Agrega internamente al académico.
+     *
+     * Este método no es público porque únicamente se utiliza
+     * para mantener correctamente la asociación bidireccional.
+     *
+     * @param academico académico que será agregado
+     */
+    void agregarAcademicoInterno(Academico academico) {
+
+        if (academico != null && !academicos.contains(academico)) {
+            academicos.add(academico);
+        }
+    }
+
+    /**
+     * Elimina internamente al académico del departamento.
+     *
+     * Se utiliza cuando un académico cambia de departamento.
+     *
+     * @param academico académico que será eliminado
+     */
+    void removerAcademicoInterno(Academico academico) {
+
+        if (academico != null) {
+            academicos.remove(academico);
+        }
     }
 
     public String getCodigoDepto() {

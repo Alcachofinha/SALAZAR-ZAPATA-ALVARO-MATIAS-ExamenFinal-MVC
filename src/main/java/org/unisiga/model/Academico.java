@@ -13,10 +13,17 @@ public class Academico extends MiembroUniversitario {
     private String idEmpleado;
     private String tipoContrato;
 
-    // Relación de agregación con Departamento.
+    /**
+     * Departamento al que pertenece el académico.
+     *
+     * Esta relación corresponde a la agregación mostrada
+     * en el UML del profesor.
+     */
     private Departamento departamento;
 
-    // Secciones dictadas por el académico.
+    /**
+     * Secciones dictadas por el académico.
+     */
     private List<Seccion> seccionesDictadas;
 
     public Academico(
@@ -40,6 +47,7 @@ public class Academico extends MiembroUniversitario {
 
         this.idEmpleado = idEmpleado.trim();
         this.tipoContrato = tipoContrato.trim();
+        this.departamento = null;
         this.seccionesDictadas = new ArrayList<>();
     }
 
@@ -58,9 +66,9 @@ public class Academico extends MiembroUniversitario {
     }
 
     /**
-     * Registra la nota de un estudiante.
+     * Registra una nota para una inscripción y evaluación.
      *
-     * Este método será implementado en un siguiente paso.
+     * Este método será implementado posteriormente.
      *
      * @param inscripcion inscripción del estudiante
      * @param evaluacion evaluación correspondiente
@@ -76,6 +84,54 @@ public class Academico extends MiembroUniversitario {
         );
     }
 
+    /**
+     * Asocia el académico con un departamento.
+     *
+     * También actualiza la lista de académicos del departamento
+     * para conservar la relación bidireccional.
+     *
+     * Si el académico ya pertenecía a otro departamento,
+     * primero será retirado del departamento anterior.
+     *
+     * @param nuevoDepartamento nuevo departamento del académico
+     */
+    public void setDepartamento(Departamento nuevoDepartamento) {
+
+        /*
+         * Si ya está asociado con ese mismo departamento,
+         * solamente comprobamos que también aparezca en su lista.
+         */
+        if (this.departamento == nuevoDepartamento) {
+
+            if (nuevoDepartamento != null) {
+                nuevoDepartamento.agregarAcademicoInterno(this);
+            }
+
+            return;
+        }
+
+        Departamento departamentoAnterior = this.departamento;
+
+        /*
+         * Primero actualizamos la referencia del académico.
+         */
+        this.departamento = nuevoDepartamento;
+
+        /*
+         * Después eliminamos al académico del departamento anterior.
+         */
+        if (departamentoAnterior != null) {
+            departamentoAnterior.removerAcademicoInterno(this);
+        }
+
+        /*
+         * Finalmente agregamos al académico al nuevo departamento.
+         */
+        if (nuevoDepartamento != null) {
+            nuevoDepartamento.agregarAcademicoInterno(this);
+        }
+    }
+
     public String getIdEmpleado() {
         return idEmpleado;
     }
@@ -86,10 +142,6 @@ public class Academico extends MiembroUniversitario {
 
     public Departamento getDepartamento() {
         return departamento;
-    }
-
-    public void setDepartamento(Departamento depto) {
-        this.departamento = depto;
     }
 
     public List<Seccion> getSeccionesDictadas() {
