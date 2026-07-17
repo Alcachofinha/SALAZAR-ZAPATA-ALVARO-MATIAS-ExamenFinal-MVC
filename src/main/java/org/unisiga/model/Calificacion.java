@@ -3,33 +3,37 @@ package org.unisiga.model;
 import java.io.Serializable;
 
 /**
- * Estructura de calificación de tres vías.
- *
- * Une:
- * - La inscripción del estudiante.
- * - La evaluación.
- * - La nota obtenida.
+ * Estructura de Calificación de Tres Vías. Unifica al Alumno (Inscripción) con el Examen (Evaluación).
  */
 public class Calificacion implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private float nota;
-
-    // Vía 1: estudiante inscrito en una sección.
-    private Inscripcion inscripcion;
-
-    // Vía 2: evaluación oficial de la asignatura.
-    private Evaluacion evaluacion;
+    private Inscripcion inscripcion; // Vía 1 (Quién rinde en qué sección)
+    private Evaluacion evaluacion;   // Vía 2 (Qué examen unificado de cátedra es)
 
     public Calificacion(
             float nota,
             Inscripcion inscripcion,
             Evaluacion evaluacion
     ) {
-        this.nota = nota;
+        if (inscripcion == null) {
+            throw new IllegalArgumentException(
+                    "La inscripción no puede ser nula."
+            );
+        }
+
+        if (evaluacion == null) {
+            throw new IllegalArgumentException(
+                    "La evaluación no puede ser nula."
+            );
+        }
+
         this.inscripcion = inscripcion;
         this.evaluacion = evaluacion;
+
+        setNota(nota);
     }
 
     public float getNota() {
@@ -37,6 +41,12 @@ public class Calificacion implements Serializable {
     }
 
     public void setNota(float nota) {
+        if (nota < 1.0f || nota > 7.0f) {
+            throw new IllegalArgumentException(
+                    "La nota debe estar entre 1.0 y 7.0."
+            );
+        }
+
         this.nota = nota;
     }
 
