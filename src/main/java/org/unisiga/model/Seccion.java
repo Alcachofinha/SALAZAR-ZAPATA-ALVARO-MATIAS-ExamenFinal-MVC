@@ -7,8 +7,7 @@ import java.util.List;
 /**
  * Materialización de una asignatura durante el semestre.
  *
- * En el UML del profesor aparece con el nombre Grupo.
- * En el código se utiliza el nombre Seccion.
+ * Esta clase representa a Grupo en el UML del profesor.
  */
 public class Seccion implements Serializable {
 
@@ -18,20 +17,28 @@ public class Seccion implements Serializable {
     private int cupoMaximo;
     private String horario;
 
-    // Contenedor de la composición.
+    /**
+     * Asignatura que contiene esta sección.
+     *
+     * Corresponde a la relación de composición.
+     */
     private Asignatura asignatura;
 
-    // Académico que dicta la sección.
+    /**
+     * Académico encargado de dictar la sección.
+     */
     private Academico docenteDicta;
 
-    // Inscripciones pertenecientes a la sección.
+    /**
+     * Inscripciones registradas en la sección.
+     */
     private List<Inscripcion> inscripciones;
 
     /**
-     * Constructor package-private.
+     * Constructor con acceso restringido al paquete.
      *
-     * No se coloca public para que la sección sea creada
-     * principalmente desde Asignatura.
+     * La sección debe ser creada desde Asignatura,
+     * respetando la composición mostrada en el UML.
      */
     Seccion(
             char idGrupo,
@@ -39,24 +46,88 @@ public class Seccion implements Serializable {
             String horario,
             Asignatura asignatura
     ) {
+
+        if (Character.isWhitespace(idGrupo)) {
+            throw new IllegalArgumentException(
+                    "El identificador de la sección no puede estar vacío."
+            );
+        }
+
+        if (cupoMaximo <= 0) {
+            throw new IllegalArgumentException(
+                    "El cupo máximo debe ser mayor que cero."
+            );
+        }
+
+        if (horario == null || horario.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "El horario de la sección no puede estar vacío."
+            );
+        }
+
+        if (asignatura == null) {
+            throw new IllegalArgumentException(
+                    "La sección debe pertenecer a una asignatura."
+            );
+        }
+
         this.idGrupo = idGrupo;
         this.cupoMaximo = cupoMaximo;
-        this.horario = horario;
+        this.horario = horario.trim();
         this.asignatura = asignatura;
+        this.docenteDicta = null;
         this.inscripciones = new ArrayList<>();
     }
 
     /**
      * Asigna un académico como docente de la sección.
      *
-     * @param docente académico que dictará la sección
+     * Mantiene la relación bidireccional:
+     *
+     * Seccion -> Academico
+     * Academico -> Seccion
+     *
+     * Si la sección ya tenía otro docente, primero se elimina
+     * de la lista de secciones del docente anterior.
+     *
+     * @param nuevoDocente académico que dictará la sección
      */
-    public void asignarDocente(Academico docente) {
-        // TODO: Asignar el docente controlando
-        // la asociación bidireccional.
-        throw new UnsupportedOperationException(
-                "Método asignarDocente() no implementado aún."
-        );
+    public void asignarDocente(Academico nuevoDocente) {
+
+        if (nuevoDocente == null) {
+            throw new IllegalArgumentException(
+                    "El docente no puede ser nulo."
+            );
+        }
+
+        /*
+         * Si ya tiene asignado al mismo docente,
+         * solamente aseguramos que la sección esté
+         * incluida en su lista.
+         */
+        if (this.docenteDicta == nuevoDocente) {
+            nuevoDocente.agregarSeccionInterna(this);
+            return;
+        }
+
+        Academico docenteAnterior = this.docenteDicta;
+
+        /*
+         * Actualizamos la referencia de la sección.
+         */
+        this.docenteDicta = nuevoDocente;
+
+        /*
+         * Eliminamos la sección del docente anterior.
+         */
+        if (docenteAnterior != null) {
+            docenteAnterior.removerSeccionInterna(this);
+        }
+
+        /*
+         * Agregamos la sección al docente nuevo.
+         */
+        nuevoDocente.agregarSeccionInterna(this);
     }
 
     public char getIdGrupo() {

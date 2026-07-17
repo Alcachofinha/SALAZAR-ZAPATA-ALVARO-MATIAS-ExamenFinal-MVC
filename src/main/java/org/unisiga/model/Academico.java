@@ -16,13 +16,14 @@ public class Academico extends MiembroUniversitario {
     /**
      * Departamento al que pertenece el académico.
      *
-     * Esta relación corresponde a la agregación mostrada
-     * en el UML del profesor.
+     * Relación de agregación mostrada en el UML.
      */
     private Departamento departamento;
 
     /**
      * Secciones dictadas por el académico.
+     *
+     * Un académico puede dictar cero o muchas secciones.
      */
     private List<Seccion> seccionesDictadas;
 
@@ -54,11 +55,11 @@ public class Academico extends MiembroUniversitario {
     /**
      * Implementación polimórfica del inicio de sesión.
      *
-     * Regla indicada por el profesor:
-     * la contraseña del académico debe contener '@'.
+     * Regla indicada en la plantilla:
+     * la contraseña debe contener el carácter '@'.
      *
      * @param password contraseña ingresada
-     * @return true si contiene el carácter '@'
+     * @return true si la contraseña contiene '@'
      */
     @Override
     public boolean login(String password) {
@@ -66,9 +67,9 @@ public class Academico extends MiembroUniversitario {
     }
 
     /**
-     * Registra una nota para una inscripción y evaluación.
+     * Registra una nota para una inscripción.
      *
-     * Este método será implementado posteriormente.
+     * Se implementará posteriormente.
      *
      * @param inscripcion inscripción del estudiante
      * @param evaluacion evaluación correspondiente
@@ -85,22 +86,17 @@ public class Academico extends MiembroUniversitario {
     }
 
     /**
-     * Asocia el académico con un departamento.
+     * Cambia el departamento del académico.
      *
-     * También actualiza la lista de académicos del departamento
-     * para conservar la relación bidireccional.
+     * Mantiene la relación bidireccional:
      *
-     * Si el académico ya pertenecía a otro departamento,
-     * primero será retirado del departamento anterior.
+     * Academico -> Departamento
+     * Departamento -> Academico
      *
-     * @param nuevoDepartamento nuevo departamento del académico
+     * @param nuevoDepartamento departamento nuevo
      */
     public void setDepartamento(Departamento nuevoDepartamento) {
 
-        /*
-         * Si ya está asociado con ese mismo departamento,
-         * solamente comprobamos que también aparezca en su lista.
-         */
         if (this.departamento == nuevoDepartamento) {
 
             if (nuevoDepartamento != null) {
@@ -112,23 +108,43 @@ public class Academico extends MiembroUniversitario {
 
         Departamento departamentoAnterior = this.departamento;
 
-        /*
-         * Primero actualizamos la referencia del académico.
-         */
         this.departamento = nuevoDepartamento;
 
-        /*
-         * Después eliminamos al académico del departamento anterior.
-         */
         if (departamentoAnterior != null) {
             departamentoAnterior.removerAcademicoInterno(this);
         }
 
-        /*
-         * Finalmente agregamos al académico al nuevo departamento.
-         */
         if (nuevoDepartamento != null) {
             nuevoDepartamento.agregarAcademicoInterno(this);
+        }
+    }
+
+    /**
+     * Agrega internamente una sección a la lista del académico.
+     *
+     * No es público porque la asignación debe realizarse
+     * mediante Seccion.asignarDocente().
+     *
+     * @param seccion sección que dictará el académico
+     */
+    void agregarSeccionInterna(Seccion seccion) {
+
+        if (seccion != null && !seccionesDictadas.contains(seccion)) {
+            seccionesDictadas.add(seccion);
+        }
+    }
+
+    /**
+     * Elimina internamente una sección de la lista del académico.
+     *
+     * Se utiliza cuando la sección cambia de docente.
+     *
+     * @param seccion sección que dejará de dictar
+     */
+    void removerSeccionInterna(Seccion seccion) {
+
+        if (seccion != null) {
+            seccionesDictadas.remove(seccion);
         }
     }
 
