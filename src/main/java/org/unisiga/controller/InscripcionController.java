@@ -1,8 +1,11 @@
 package org.unisiga.controller;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.swing.JOptionPane;
 import org.unisiga.exception.PrerrequisitoNoCumplidoException;
 import org.unisiga.model.Asignatura;
 import org.unisiga.model.Estudiante;
@@ -10,21 +13,118 @@ import org.unisiga.model.Inscripcion;
 import org.unisiga.model.Seccion;
 import org.unisiga.persistence.ArchivoSistema;
 import org.unisiga.persistence.DatosSistema;
+import org.unisiga.view.FrmInscripcion;
 
 /**
  * Controlador de lógica de negocio transaccional.
  * Simula llamadas e interacciones de base de datos.
  */
-public class InscripcionController {
+public class InscripcionController implements ActionListener {
 
     private List<Estudiante> estudiantesDb;
     private List<Asignatura> asignaturasDb;
     private ArchivoSistema archivoSistema;
+    private FrmInscripcion vista;
 
     public InscripcionController() {
         estudiantesDb = new ArrayList<>();
         asignaturasDb = new ArrayList<>();
         archivoSistema = new ArchivoSistema();
+    }
+
+    public InscripcionController(FrmInscripcion vista) {
+        this();
+        conectarVista(vista);
+    }
+
+    public void conectarVista(FrmInscripcion vista) {
+        if (vista == null) {
+            throw new IllegalArgumentException(
+                    "La vista no puede ser nula."
+            );
+        }
+
+        this.vista = vista;
+
+        vista.btnInscribir.addActionListener(this);
+        vista.btnLimpiar.addActionListener(this);
+    }
+
+    public void iniciarVista() {
+        if (vista == null) {
+            throw new IllegalStateException(
+                    "No se ha conectado una vista."
+            );
+        }
+
+        vista.setTitle("Inscripción de estudiantes");
+        vista.setLocationRelativeTo(null);
+        vista.setVisible(true);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent evento) {
+        if (evento.getSource() == vista.btnInscribir) {
+            procesarInscripcion();
+        }
+
+        if (evento.getSource() == vista.btnLimpiar) {
+            limpiarCampos();
+        }
+    }
+
+    private void procesarInscripcion() {
+        try {
+            String matricula =
+                    vista.txtMatricula.getText();
+
+            String codigoAsignatura =
+                    vista.txtCodigoAsignatura.getText();
+
+            String textoSeccion =
+                    vista.txtSeccion.getText().trim();
+
+            if (textoSeccion.length() != 1) {
+                throw new IllegalArgumentException(
+                        "La sección debe contener un carácter."
+                );
+            }
+
+            char idGrupo = textoSeccion.charAt(0);
+
+            String resultado =
+                    inscribirSeccionEstudiante(
+                            matricula,
+                            codigoAsignatura,
+                            idGrupo
+                    );
+
+            JOptionPane.showMessageDialog(
+                    vista,
+                    resultado,
+                    "Inscripción correcta",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            limpiarCampos();
+
+        } catch (IllegalArgumentException
+                | IllegalStateException ex) {
+
+            JOptionPane.showMessageDialog(
+                    vista,
+                    ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void limpiarCampos() {
+        vista.txtMatricula.setText("");
+        vista.txtCodigoAsignatura.setText("");
+        vista.txtSeccion.setText("");
+        vista.txtMatricula.requestFocus();
     }
 
     // Métodos de sembrado (seeding) de bases de datos
@@ -38,7 +138,6 @@ public class InscripcionController {
         }
 
         for (Estudiante registrado : estudiantesDb) {
-
             if (registrado.getMatricula()
                     .equalsIgnoreCase(
                             estudiante.getMatricula()
@@ -63,7 +162,6 @@ public class InscripcionController {
         }
 
         for (Asignatura registrada : asignaturasDb) {
-
             if (registrada.getCodigo()
                     .equalsIgnoreCase(
                             asignatura.getCodigo()
@@ -144,7 +242,6 @@ public class InscripcionController {
     }
 
     public boolean cargarDatos(String ruta) {
-
         if (!archivoSistema.existe(ruta)) {
             return false;
         }
@@ -179,7 +276,6 @@ public class InscripcionController {
             String matricula
     ) {
         for (Estudiante estudiante : estudiantesDb) {
-
             if (estudiante.getMatricula()
                     .equalsIgnoreCase(
                             matricula.trim()
@@ -190,8 +286,7 @@ public class InscripcionController {
         }
 
         throw new IllegalArgumentException(
-                "No existe un estudiante "
-                        + "con esa matrícula."
+                "No existe un estudiante con esa matrícula."
         );
     }
 
@@ -199,7 +294,6 @@ public class InscripcionController {
             String codigo
     ) {
         for (Asignatura asignatura : asignaturasDb) {
-
             if (asignatura.getCodigo()
                     .equalsIgnoreCase(
                             codigo.trim()
@@ -210,8 +304,7 @@ public class InscripcionController {
         }
 
         throw new IllegalArgumentException(
-                "No existe una asignatura "
-                        + "con ese código."
+                "No existe una asignatura con ese código."
         );
     }
 
@@ -255,8 +348,7 @@ public class InscripcionController {
                 boolean mismaAsignatura =
                         cursada.getCodigo()
                                 .equalsIgnoreCase(
-                                        prerrequisito
-                                                .getCodigo()
+                                        prerrequisito.getCodigo()
                                 );
 
                 boolean estadoAprobado =
@@ -275,12 +367,10 @@ public class InscripcionController {
             }
 
             if (!aprobado) {
-                throw new
-                        PrerrequisitoNoCumplidoException(
-                                "Prerrequisito no aprobado: "
-                                        + prerrequisito
-                                                .getNombre()
-                        );
+                throw new PrerrequisitoNoCumplidoException(
+                        "Prerrequisito no aprobado: "
+                                + prerrequisito.getNombre()
+                );
             }
         }
     }
