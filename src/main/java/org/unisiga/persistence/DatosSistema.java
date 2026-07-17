@@ -10,30 +10,26 @@ public class DatosSistema implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private List<Estudiante> estudiantes;
-    private List<Asignatura> asignaturas;
+    private final List<Estudiante> estudiantes;
+    private final List<Asignatura> asignaturas;
+
+    public DatosSistema() {
+        this.estudiantes = new ArrayList<>();
+        this.asignaturas = new ArrayList<>();
+    }
 
     public DatosSistema(
             List<Estudiante> estudiantes,
             List<Asignatura> asignaturas
     ) {
-        if (estudiantes == null) {
+        if (estudiantes == null || asignaturas == null) {
             throw new IllegalArgumentException(
-                    "La lista de estudiantes no puede ser nula."
+                    "Las listas del sistema no pueden ser nulas."
             );
         }
 
-        if (asignaturas == null) {
-            throw new IllegalArgumentException(
-                    "La lista de asignaturas no puede ser nula."
-            );
-        }
-
-        this.estudiantes =
-                new ArrayList<>(estudiantes);
-
-        this.asignaturas =
-                new ArrayList<>(asignaturas);
+        this.estudiantes = new ArrayList<>(estudiantes);
+        this.asignaturas = new ArrayList<>(asignaturas);
     }
 
     public List<Estudiante> getEstudiantes() {

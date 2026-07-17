@@ -2,7 +2,6 @@ package org.unisiga.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -23,44 +22,37 @@ public class InscripcionController implements ActionListener {
 
     private static final String RUTA_DATOS = "datos/unisiga.dat";
 
-    private List<Estudiante> estudiantesDb;
-    private List<Asignatura> asignaturasDb;
-    private ArchivoSistema archivoSistema;
-    private FrmInscripcion vista;
+    private final DatosSistema datosSistema;
+    private final ArchivoSistema archivoSistema;
+    private final FrmInscripcion vista;
 
-    public InscripcionController() {
-        estudiantesDb = new ArrayList<>();
-        asignaturasDb = new ArrayList<>();
-        archivoSistema = new ArchivoSistema();
-    }
-
-    public InscripcionController(FrmInscripcion vista) {
-        this();
-        conectarVista(vista);
-    }
-
-    public void conectarVista(FrmInscripcion vista) {
+    public InscripcionController(
+            FrmInscripcion vista,
+            DatosSistema datosSistema
+    ) {
         if (vista == null) {
             throw new IllegalArgumentException(
                     "La vista no puede ser nula."
             );
         }
 
+        if (datosSistema == null) {
+            throw new IllegalArgumentException(
+                    "Los datos del sistema no pueden ser nulos."
+            );
+        }
+
         this.vista = vista;
+        this.datosSistema = datosSistema;
+        this.archivoSistema = new ArchivoSistema();
 
         vista.btnInscribir.addActionListener(this);
         vista.btnLimpiar.addActionListener(this);
     }
 
     public void iniciarVista() {
-        if (vista == null) {
-            throw new IllegalStateException(
-                    "No se ha conectado una vista."
-            );
-        }
-
         vista.setTitle("Inscripción de estudiantes");
-        vista.setLocationRelativeTo(null);
+        vista.setLocationByPlatform(true);
         vista.setVisible(true);
     }
 
@@ -77,14 +69,9 @@ public class InscripcionController implements ActionListener {
 
     private void procesarInscripcion() {
         try {
-            String matricula =
-                    vista.txtMatricula.getText();
-
-            String codigoAsignatura =
-                    vista.txtCodigoAsignatura.getText();
-
-            String textoSeccion =
-                    vista.txtSeccion.getText().trim();
+            String matricula = vista.txtMatricula.getText();
+            String codigo = vista.txtCodigoAsignatura.getText();
+            String textoSeccion = vista.txtSeccion.getText().trim();
 
             if (textoSeccion.length() != 1) {
                 throw new IllegalArgumentException(
@@ -92,16 +79,13 @@ public class InscripcionController implements ActionListener {
                 );
             }
 
-            char idGrupo = textoSeccion.charAt(0);
+            String resultado = inscribirSeccionEstudiante(
+                    matricula,
+                    codigo,
+                    textoSeccion.charAt(0)
+            );
 
-            String resultado =
-                    inscribirSeccionEstudiante(
-                            matricula,
-                            codigoAsignatura,
-                            idGrupo
-                    );
-
-            guardarDatos(RUTA_DATOS);
+            archivoSistema.guardar(RUTA_DATOS, datosSistema);
 
             JOptionPane.showMessageDialog(
                     vista,
@@ -112,9 +96,7 @@ public class InscripcionController implements ActionListener {
 
             limpiarCampos();
 
-        } catch (IllegalArgumentException
-                | IllegalStateException ex) {
-
+        } catch (IllegalArgumentException | IllegalStateException ex) {
             JOptionPane.showMessageDialog(
                     vista,
                     ex.getMessage(),
@@ -132,52 +114,44 @@ public class InscripcionController implements ActionListener {
     }
 
     // Métodos de sembrado (seeding) de bases de datos
-    public void registrarEstudianteEnDb(
-            Estudiante estudiante
-    ) {
+    public void registrarEstudianteEnDb(Estudiante estudiante) {
         if (estudiante == null) {
             throw new IllegalArgumentException(
                     "El estudiante no puede ser nulo."
             );
         }
 
-        for (Estudiante registrado : estudiantesDb) {
-            if (registrado.getMatricula()
-                    .equalsIgnoreCase(
-                            estudiante.getMatricula()
-                    )) {
-
+        for (Estudiante registrado : datosSistema.getEstudiantes()) {
+            if (registrado.getMatricula().equalsIgnoreCase(
+                    estudiante.getMatricula()
+            )) {
                 throw new IllegalArgumentException(
                         "La matrícula ya está registrada."
                 );
             }
         }
 
-        estudiantesDb.add(estudiante);
+        datosSistema.getEstudiantes().add(estudiante);
     }
 
-    public void registrarAsignaturaEnDb(
-            Asignatura asignatura
-    ) {
+    public void registrarAsignaturaEnDb(Asignatura asignatura) {
         if (asignatura == null) {
             throw new IllegalArgumentException(
                     "La asignatura no puede ser nula."
             );
         }
 
-        for (Asignatura registrada : asignaturasDb) {
-            if (registrada.getCodigo()
-                    .equalsIgnoreCase(
-                            asignatura.getCodigo()
-                    )) {
-
+        for (Asignatura registrada : datosSistema.getAsignaturas()) {
+            if (registrada.getCodigo().equalsIgnoreCase(
+                    asignatura.getCodigo()
+            )) {
                 throw new IllegalArgumentException(
                         "La asignatura ya está registrada."
                 );
             }
         }
 
-        asignaturasDb.add(asignatura);
+        datosSistema.getAsignaturas().add(asignatura);
     }
 
     /**
@@ -204,28 +178,11 @@ public class InscripcionController implements ActionListener {
                 "El código no puede estar vacío."
         );
 
-        if (idGrupo == '\0'
-                || Character.isWhitespace(idGrupo)) {
+        Estudiante estudiante = buscarEstudiante(matricula);
+        Asignatura asignatura = buscarAsignatura(codigoAsignatura);
+        Seccion seccion = buscarSeccion(asignatura, idGrupo);
 
-            throw new IllegalArgumentException(
-                    "La sección no es válida."
-            );
-        }
-
-        Estudiante estudiante =
-                buscarEstudiante(matricula);
-
-        Asignatura asignatura =
-                buscarAsignatura(codigoAsignatura);
-
-        Seccion seccion =
-                buscarSeccion(asignatura, idGrupo);
-
-        validarPrerrequisitos(
-                estudiante,
-                asignatura
-        );
-
+        validarPrerrequisitos(estudiante, asignatura);
         estudiante.inscribirSeccion(seccion);
 
         return "Inscripción realizada: "
@@ -236,55 +193,23 @@ public class InscripcionController implements ActionListener {
                 + seccion.getIdGrupo();
     }
 
-    public void guardarDatos(String ruta) {
-        DatosSistema datos = new DatosSistema(
-                estudiantesDb,
-                asignaturasDb
-        );
-
-        archivoSistema.guardar(ruta, datos);
-    }
-
-    public boolean cargarDatos(String ruta) {
-        if (!archivoSistema.existe(ruta)) {
-            return false;
-        }
-
-        DatosSistema datos =
-                archivoSistema.cargar(ruta);
-
-        estudiantesDb = new ArrayList<>(
-                datos.getEstudiantes()
-        );
-
-        asignaturasDb = new ArrayList<>(
-                datos.getAsignaturas()
-        );
-
-        return true;
-    }
-
     public List<Estudiante> getEstudiantesDb() {
         return Collections.unmodifiableList(
-                estudiantesDb
+                datosSistema.getEstudiantes()
         );
     }
 
     public List<Asignatura> getAsignaturasDb() {
         return Collections.unmodifiableList(
-                asignaturasDb
+                datosSistema.getAsignaturas()
         );
     }
 
-    private Estudiante buscarEstudiante(
-            String matricula
-    ) {
-        for (Estudiante estudiante : estudiantesDb) {
-            if (estudiante.getMatricula()
-                    .equalsIgnoreCase(
-                            matricula.trim()
-                    )) {
-
+    private Estudiante buscarEstudiante(String matricula) {
+        for (Estudiante estudiante : datosSistema.getEstudiantes()) {
+            if (estudiante.getMatricula().equalsIgnoreCase(
+                    matricula.trim()
+            )) {
                 return estudiante;
             }
         }
@@ -294,15 +219,11 @@ public class InscripcionController implements ActionListener {
         );
     }
 
-    private Asignatura buscarAsignatura(
-            String codigo
-    ) {
-        for (Asignatura asignatura : asignaturasDb) {
-            if (asignatura.getCodigo()
-                    .equalsIgnoreCase(
-                            codigo.trim()
-                    )) {
-
+    private Asignatura buscarAsignatura(String codigo) {
+        for (Asignatura asignatura : datosSistema.getAsignaturas()) {
+            if (asignatura.getCodigo().equalsIgnoreCase(
+                    codigo.trim()
+            )) {
                 return asignatura;
             }
         }
@@ -316,13 +237,9 @@ public class InscripcionController implements ActionListener {
             Asignatura asignatura,
             char idGrupo
     ) {
-        for (Seccion seccion
-                : asignatura.getSecciones()) {
-
-            if (Character.toUpperCase(
-                    seccion.getIdGrupo()
-            ) == Character.toUpperCase(idGrupo)) {
-
+        for (Seccion seccion : asignatura.getSecciones()) {
+            if (Character.toUpperCase(seccion.getIdGrupo())
+                    == Character.toUpperCase(idGrupo)) {
                 return seccion;
             }
         }
@@ -336,35 +253,24 @@ public class InscripcionController implements ActionListener {
             Estudiante estudiante,
             Asignatura asignatura
     ) {
-        for (Asignatura prerrequisito
-                : asignatura.getPrerrequisitos()) {
-
+        for (Asignatura prerrequisito : asignatura.getPrerrequisitos()) {
             boolean aprobado = false;
 
             for (Inscripcion inscripcion
                     : estudiante.getInscripciones()) {
 
-                Asignatura cursada =
-                        inscripcion
-                                .getSeccion()
-                                .getAsignatura();
+                Asignatura cursada = inscripcion
+                        .getSeccion()
+                        .getAsignatura();
 
-                boolean mismaAsignatura =
-                        cursada.getCodigo()
-                                .equalsIgnoreCase(
-                                        prerrequisito.getCodigo()
-                                );
+                boolean mismaAsignatura = cursada.getCodigo()
+                        .equalsIgnoreCase(prerrequisito.getCodigo());
 
-                boolean estadoAprobado =
-                        inscripcion
-                                .getEstadoInscripcion()
-                                .equalsIgnoreCase(
-                                        "Aprobado"
-                                );
+                boolean estadoAprobado = inscripcion
+                        .getEstadoInscripcion()
+                        .equalsIgnoreCase("Aprobado");
 
-                if (mismaAsignatura
-                        && estadoAprobado) {
-
+                if (mismaAsignatura && estadoAprobado) {
                     aprobado = true;
                     break;
                 }
@@ -379,16 +285,9 @@ public class InscripcionController implements ActionListener {
         }
     }
 
-    private void validarTexto(
-            String texto,
-            String mensaje
-    ) {
-        if (texto == null
-                || texto.trim().isEmpty()) {
-
-            throw new IllegalArgumentException(
-                    mensaje
-            );
+    private void validarTexto(String texto, String mensaje) {
+        if (texto == null || texto.trim().isEmpty()) {
+            throw new IllegalArgumentException(mensaje);
         }
     }
 }
