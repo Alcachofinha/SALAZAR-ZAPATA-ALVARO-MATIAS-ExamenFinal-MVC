@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Representa al alumno de la universidad.
- * [EVALUACIÓN]&#58; El estudiante debe implementar el encapsulamiento
- * y el método de inscripción.
+ * Representa al estudiante de la universidad.
  */
 public class Estudiante extends MiembroUniversitario {
 
@@ -26,34 +24,53 @@ public class Estudiante extends MiembroUniversitario {
             float promedioPpa
     ) {
         super(rut, nombre, correo);
-        this.matricula = matricula;
+
+        validarTexto(
+                matricula,
+                "La matrícula del estudiante no puede estar vacía."
+        );
+
+        if (anioIngreso <= 0) {
+            throw new IllegalArgumentException(
+                    "El año de ingreso debe ser mayor que cero."
+            );
+        }
+
+        if (promedioPpa < 0.0f || promedioPpa > 7.0f) {
+            throw new IllegalArgumentException(
+                    "El promedio PPA debe estar entre 0.0 y 7.0."
+            );
+        }
+
+        this.matricula = matricula.trim();
         this.anioIngreso = anioIngreso;
         this.promedioPpa = promedioPpa;
         this.inscripciones = new ArrayList<>();
     }
 
+    /**
+     * Implementación polimórfica del inicio de sesión.
+     *
+     * Regla indicada por el profesor:
+     * la contraseña del estudiante debe tener como mínimo
+     * 8 caracteres.
+     *
+     * @param password contraseña ingresada
+     * @return true si tiene como mínimo 8 caracteres
+     */
     @Override
     public boolean login(String password) {
-        // TODO: Implementar validación simulada de clave del estudiante.
-        // Regla indicada: largo mínimo de 8 caracteres.
-        throw new UnsupportedOperationException(
-                "Método login() no implementado aún."
-        );
+        return password != null && password.length() >= 8;
     }
 
     /**
-     * Realiza el proceso de inscripción en una sección.
-     * [REGLAS]&#58; Validar que la sección no sea nula y que cuente
-     * con cupos disponibles.
+     * Realiza la inscripción del estudiante en una sección.
      *
-     * @param seccion sección en la que se inscribirá el estudiante
+     * Este método será implementado en un siguiente paso.
+     *
+     * @param seccion sección seleccionada
      */
     public void inscribirSeccion(Seccion seccion) {
-        // TODO: Implementar el control de cupos y la creación
-        // de la clase de asociación Inscripcion.
-        //
-        // La inscripción deberá agregarse tanto a la lista
-        // del estudiante como a la lista de la sección.
         throw new UnsupportedOperationException(
                 "Método inscribirSeccion() no implementado aún."
         );

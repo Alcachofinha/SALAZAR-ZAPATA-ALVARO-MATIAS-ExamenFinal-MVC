@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Representa al profesor encargado de dictar cátedras.
+ * Representa al académico encargado de dictar secciones.
  */
 public class Academico extends MiembroUniversitario {
 
@@ -16,7 +16,7 @@ public class Academico extends MiembroUniversitario {
     // Relación de agregación con Departamento.
     private Departamento departamento;
 
-    // Secciones que dicta el académico.
+    // Secciones dictadas por el académico.
     private List<Seccion> seccionesDictadas;
 
     public Academico(
@@ -27,29 +27,43 @@ public class Academico extends MiembroUniversitario {
             String tipoContrato
     ) {
         super(rut, nombre, correo);
-        this.idEmpleado = idEmpleado;
-        this.tipoContrato = tipoContrato;
+
+        validarTexto(
+                idEmpleado,
+                "El identificador del empleado no puede estar vacío."
+        );
+
+        validarTexto(
+                tipoContrato,
+                "El tipo de contrato no puede estar vacío."
+        );
+
+        this.idEmpleado = idEmpleado.trim();
+        this.tipoContrato = tipoContrato.trim();
         this.seccionesDictadas = new ArrayList<>();
     }
 
+    /**
+     * Implementación polimórfica del inicio de sesión.
+     *
+     * Regla indicada por el profesor:
+     * la contraseña del académico debe contener '@'.
+     *
+     * @param password contraseña ingresada
+     * @return true si contiene el carácter '@'
+     */
     @Override
     public boolean login(String password) {
-        // TODO: Implementar validación simulada de MFA docente.
-        // Regla indicada: la contraseña debe contener '@'.
-        throw new UnsupportedOperationException(
-                "Método login() no implementado aún."
-        );
+        return password != null && password.contains("@");
     }
 
     /**
-     * Registra la nota de un estudiante para una evaluación.
+     * Registra la nota de un estudiante.
      *
-     * [REGLAS]&#58;      * - Validar los parámetros.
-     * - Validar el rango de notas [1.0, 7.0].
-     * - Validar que la evaluación pertenezca a la asignatura.
+     * Este método será implementado en un siguiente paso.
      *
      * @param inscripcion inscripción del estudiante
-     * @param evaluacion evaluación que será calificada
+     * @param evaluacion evaluación correspondiente
      * @param valorNota nota obtenida
      */
     public void registrarNota(
@@ -57,8 +71,6 @@ public class Academico extends MiembroUniversitario {
             Evaluacion evaluacion,
             float valorNota
     ) {
-        // TODO: Implementar la validación y la inserción
-        // o actualización de la calificación de tres vías.
         throw new UnsupportedOperationException(
                 "Método registrarNota() no implementado aún."
         );

@@ -3,9 +3,12 @@ package org.unisiga.model;
 import java.io.Serializable;
 
 /**
- * Clase Abstracta Base que representa a cualquier miembro de la universidad.
- * [EVALUACIÓN]&#58; El estudiante debe comprender el concepto de herencia
- * y atributos protegidos.
+ * Clase abstracta base que representa a cualquier miembro
+ * de la universidad.
+ *
+ * De esta clase heredan:
+ * - Estudiante
+ * - Academico
  */
 public abstract class MiembroUniversitario implements Serializable {
 
@@ -20,26 +23,45 @@ public abstract class MiembroUniversitario implements Serializable {
             String nombre,
             String correoInstitucional
     ) {
-        this.rut = rut;
-        this.nombre = nombre;
-        this.correoInstitucional = correoInstitucional;
+        validarTexto(rut, "El RUT no puede estar vacío.");
+        validarTexto(nombre, "El nombre no puede estar vacío.");
+        validarTexto(
+                correoInstitucional,
+                "El correo institucional no puede estar vacío."
+        );
+
+        this.rut = rut.trim();
+        this.nombre = nombre.trim();
+        this.correoInstitucional = correoInstitucional.trim();
     }
 
     /**
-     * Firma abstracta para el inicio de sesión.
-     * Cada subclase debe implementar sus propias reglas.
+     * Cada subclase implementa su propia regla de inicio de sesión.
      *
      * @param password contraseña ingresada
-     * @return true cuando la contraseña cumple la regla definida
+     * @return true cuando la contraseña cumple la regla
      */
     public abstract boolean login(String password);
+
+    /**
+     * Método auxiliar para validar textos.
+     *
+     * Es protected para que también pueda ser utilizado
+     * por Estudiante y Academico.
+     */
+    protected final void validarTexto(String valor, String mensaje) {
+        if (valor == null || valor.trim().isEmpty()) {
+            throw new IllegalArgumentException(mensaje);
+        }
+    }
 
     public String getRut() {
         return rut;
     }
 
     public void setRut(String rut) {
-        this.rut = rut;
+        validarTexto(rut, "El RUT no puede estar vacío.");
+        this.rut = rut.trim();
     }
 
     public String getNombre() {
@@ -47,7 +69,8 @@ public abstract class MiembroUniversitario implements Serializable {
     }
 
     public void setNombre(String nombre) {
-        this.nombre = nombre;
+        validarTexto(nombre, "El nombre no puede estar vacío.");
+        this.nombre = nombre.trim();
     }
 
     public String getCorreoInstitucional() {
@@ -55,6 +78,11 @@ public abstract class MiembroUniversitario implements Serializable {
     }
 
     public void setCorreoInstitucional(String correo) {
-        this.correoInstitucional = correo;
+        validarTexto(
+                correo,
+                "El correo institucional no puede estar vacío."
+        );
+
+        this.correoInstitucional = correo.trim();
     }
 }
