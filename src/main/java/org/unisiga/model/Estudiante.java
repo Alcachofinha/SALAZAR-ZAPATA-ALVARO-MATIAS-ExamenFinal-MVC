@@ -2,10 +2,13 @@ package org.unisiga.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.unisiga.exception.CupoCompletoException;
+import org.unisiga.exception.InscripcionDuplicadaException;
 
 /**
  * Representa al alumno de la universidad.
- * [EVALUACIÓN]&#58; El estudiante debe implementar el encapsulamiento y el método de inscripción.
+ * [EVALUACIÓN]&#58; El estudiante debe implementar el
+ * encapsulamiento y el método de inscripción.
  */
 public class Estudiante extends MiembroUniversitario {
 
@@ -37,7 +40,9 @@ public class Estudiante extends MiembroUniversitario {
             );
         }
 
-        if (promedioPpa < 0.0f || promedioPpa > 7.0f) {
+        if (promedioPpa < 0.0f
+                || promedioPpa > 7.0f) {
+
             throw new IllegalArgumentException(
                     "El promedio debe estar entre 0.0 y 7.0."
             );
@@ -57,7 +62,8 @@ public class Estudiante extends MiembroUniversitario {
 
     /**
      * Realiza el proceso de inscripción en una sección.
-     * [REGLAS]&#58; Validar que la sección no sea nula y que cuente con cupos disponibles.
+     * [REGLAS]&#58; Validar que la sección no sea nula
+     * y que cuente con cupos disponibles.
      */
     public void inscribirSeccion(Seccion seccion) {
 
@@ -70,7 +76,7 @@ public class Estudiante extends MiembroUniversitario {
         if (seccion.getInscripciones().size()
                 >= seccion.getCupoMaximo()) {
 
-            throw new IllegalStateException(
+            throw new CupoCompletoException(
                     "La sección no tiene cupos disponibles."
             );
         }
@@ -78,8 +84,9 @@ public class Estudiante extends MiembroUniversitario {
         for (Inscripcion inscripcion : inscripciones) {
 
             if (inscripcion.getSeccion() == seccion) {
-                throw new IllegalStateException(
-                        "El estudiante ya está inscrito en esta sección."
+                throw new InscripcionDuplicadaException(
+                        "El estudiante ya está inscrito "
+                                + "en esta sección."
                 );
             }
         }
@@ -88,7 +95,10 @@ public class Estudiante extends MiembroUniversitario {
                 new Inscripcion(this, seccion);
 
         inscripciones.add(nuevaInscripcion);
-        seccion.agregarInscripcionInterna(nuevaInscripcion);
+
+        seccion.agregarInscripcionInterna(
+                nuevaInscripcion
+        );
     }
 
     public String getMatricula() {

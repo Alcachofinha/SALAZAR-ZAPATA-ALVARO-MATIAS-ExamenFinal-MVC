@@ -2,6 +2,7 @@ package org.unisiga.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.unisiga.exception.PrerrequisitoNoCumplidoException;
 import org.unisiga.model.Asignatura;
 import org.unisiga.model.Estudiante;
 import org.unisiga.model.Inscripcion;
@@ -17,8 +18,8 @@ public class InscripcionController {
     private List<Asignatura> asignaturasDb;
 
     public InscripcionController() {
-        this.estudiantesDb = new ArrayList<>();
-        this.asignaturasDb = new ArrayList<>();
+        estudiantesDb = new ArrayList<>();
+        asignaturasDb = new ArrayList<>();
     }
 
     // Métodos de sembrado (seeding) de bases de datos
@@ -32,6 +33,7 @@ public class InscripcionController {
         }
 
         for (Estudiante registrado : estudiantesDb) {
+
             if (registrado.getMatricula()
                     .equalsIgnoreCase(
                             estudiante.getMatricula()
@@ -56,6 +58,7 @@ public class InscripcionController {
         }
 
         for (Asignatura registrada : asignaturasDb) {
+
             if (registrada.getCodigo()
                     .equalsIgnoreCase(
                             asignatura.getCodigo()
@@ -130,6 +133,7 @@ public class InscripcionController {
             String matricula
     ) {
         for (Estudiante estudiante : estudiantesDb) {
+
             if (estudiante.getMatricula()
                     .equalsIgnoreCase(
                             matricula.trim()
@@ -141,7 +145,7 @@ public class InscripcionController {
 
         throw new IllegalArgumentException(
                 "No existe un estudiante "
-                + "con esa matrícula."
+                        + "con esa matrícula."
         );
     }
 
@@ -149,6 +153,7 @@ public class InscripcionController {
             String codigo
     ) {
         for (Asignatura asignatura : asignaturasDb) {
+
             if (asignatura.getCodigo()
                     .equalsIgnoreCase(
                             codigo.trim()
@@ -160,7 +165,7 @@ public class InscripcionController {
 
         throw new IllegalArgumentException(
                 "No existe una asignatura "
-                + "con ese código."
+                        + "con ese código."
         );
     }
 
@@ -224,10 +229,12 @@ public class InscripcionController {
             }
 
             if (!aprobado) {
-                throw new IllegalStateException(
-                        "Prerrequisito no aprobado: "
-                        + prerrequisito.getNombre()
-                );
+                throw new
+                        PrerrequisitoNoCumplidoException(
+                                "Prerrequisito no aprobado: "
+                                        + prerrequisito
+                                                .getNombre()
+                        );
             }
         }
     }
