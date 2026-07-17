@@ -1,12 +1,15 @@
 package org.unisiga.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.unisiga.exception.PrerrequisitoNoCumplidoException;
 import org.unisiga.model.Asignatura;
 import org.unisiga.model.Estudiante;
 import org.unisiga.model.Inscripcion;
 import org.unisiga.model.Seccion;
+import org.unisiga.persistence.ArchivoSistema;
+import org.unisiga.persistence.DatosSistema;
 
 /**
  * Controlador de lógica de negocio transaccional.
@@ -16,10 +19,12 @@ public class InscripcionController {
 
     private List<Estudiante> estudiantesDb;
     private List<Asignatura> asignaturasDb;
+    private ArchivoSistema archivoSistema;
 
     public InscripcionController() {
         estudiantesDb = new ArrayList<>();
         asignaturasDb = new ArrayList<>();
+        archivoSistema = new ArchivoSistema();
     }
 
     // Métodos de sembrado (seeding) de bases de datos
@@ -127,6 +132,47 @@ public class InscripcionController {
                 + asignatura.getNombre()
                 + " - Sección "
                 + seccion.getIdGrupo();
+    }
+
+    public void guardarDatos(String ruta) {
+        DatosSistema datos = new DatosSistema(
+                estudiantesDb,
+                asignaturasDb
+        );
+
+        archivoSistema.guardar(ruta, datos);
+    }
+
+    public boolean cargarDatos(String ruta) {
+
+        if (!archivoSistema.existe(ruta)) {
+            return false;
+        }
+
+        DatosSistema datos =
+                archivoSistema.cargar(ruta);
+
+        estudiantesDb = new ArrayList<>(
+                datos.getEstudiantes()
+        );
+
+        asignaturasDb = new ArrayList<>(
+                datos.getAsignaturas()
+        );
+
+        return true;
+    }
+
+    public List<Estudiante> getEstudiantesDb() {
+        return Collections.unmodifiableList(
+                estudiantesDb
+        );
+    }
+
+    public List<Asignatura> getAsignaturasDb() {
+        return Collections.unmodifiableList(
+                asignaturasDb
+        );
     }
 
     private Estudiante buscarEstudiante(
