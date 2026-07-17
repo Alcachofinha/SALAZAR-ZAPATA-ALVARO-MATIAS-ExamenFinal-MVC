@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Representa al estudiante de la universidad.
+ * Representa al alumno de la universidad.
+ * [EVALUACIÓN]&#58; El estudiante debe implementar el encapsulamiento y el método de inscripción.
  */
 public class Estudiante extends MiembroUniversitario {
 
@@ -27,7 +28,7 @@ public class Estudiante extends MiembroUniversitario {
 
         validarTexto(
                 matricula,
-                "La matrícula del estudiante no puede estar vacía."
+                "La matrícula no puede estar vacía."
         );
 
         if (anioIngreso <= 0) {
@@ -38,7 +39,7 @@ public class Estudiante extends MiembroUniversitario {
 
         if (promedioPpa < 0.0f || promedioPpa > 7.0f) {
             throw new IllegalArgumentException(
-                    "El promedio PPA debe estar entre 0.0 y 7.0."
+                    "El promedio debe estar entre 0.0 y 7.0."
             );
         }
 
@@ -48,32 +49,46 @@ public class Estudiante extends MiembroUniversitario {
         this.inscripciones = new ArrayList<>();
     }
 
-    /**
-     * Implementación polimórfica del inicio de sesión.
-     *
-     * Regla indicada por el profesor:
-     * la contraseña del estudiante debe tener como mínimo
-     * 8 caracteres.
-     *
-     * @param password contraseña ingresada
-     * @return true si tiene como mínimo 8 caracteres
-     */
     @Override
     public boolean login(String password) {
-        return password != null && password.length() >= 8;
+        return password != null
+                && password.length() >= 8;
     }
 
     /**
-     * Realiza la inscripción del estudiante en una sección.
-     *
-     * Este método será implementado en un siguiente paso.
-     *
-     * @param seccion sección seleccionada
+     * Realiza el proceso de inscripción en una sección.
+     * [REGLAS]&#58; Validar que la sección no sea nula y que cuente con cupos disponibles.
      */
     public void inscribirSeccion(Seccion seccion) {
-        throw new UnsupportedOperationException(
-                "Método inscribirSeccion() no implementado aún."
-        );
+
+        if (seccion == null) {
+            throw new IllegalArgumentException(
+                    "La sección no puede ser nula."
+            );
+        }
+
+        if (seccion.getInscripciones().size()
+                >= seccion.getCupoMaximo()) {
+
+            throw new IllegalStateException(
+                    "La sección no tiene cupos disponibles."
+            );
+        }
+
+        for (Inscripcion inscripcion : inscripciones) {
+
+            if (inscripcion.getSeccion() == seccion) {
+                throw new IllegalStateException(
+                        "El estudiante ya está inscrito en esta sección."
+                );
+            }
+        }
+
+        Inscripcion nuevaInscripcion =
+                new Inscripcion(this, seccion);
+
+        inscripciones.add(nuevaInscripcion);
+        seccion.agregarInscripcionInterna(nuevaInscripcion);
     }
 
     public String getMatricula() {

@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Materialización de una asignatura durante el semestre.
- *
- * Esta clase representa a Grupo en el UML del profesor.
+ * Materialización física de una asignatura en el semestre.
  */
 public class Seccion implements Serializable {
 
@@ -17,39 +15,23 @@ public class Seccion implements Serializable {
     private int cupoMaximo;
     private String horario;
 
-    /**
-     * Asignatura que contiene esta sección.
-     *
-     * Corresponde a la relación de composición.
-     */
     private Asignatura asignatura;
-
-    /**
-     * Académico encargado de dictar la sección.
-     */
     private Academico docenteDicta;
 
-    /**
-     * Inscripciones registradas en la sección.
-     */
     private List<Inscripcion> inscripciones;
 
-    /**
-     * Constructor con acceso restringido al paquete.
-     *
-     * La sección debe ser creada desde Asignatura,
-     * respetando la composición mostrada en el UML.
-     */
+    // [DISEÑO TÉCNICO]: Constructor package-private para forzar que solo 'Asignatura' (mismo package) lo invoque.
     Seccion(
             char idGrupo,
             int cupoMaximo,
             String horario,
             Asignatura asignatura
     ) {
+        if (idGrupo == '\0'
+                || Character.isWhitespace(idGrupo)) {
 
-        if (Character.isWhitespace(idGrupo)) {
             throw new IllegalArgumentException(
-                    "El identificador de la sección no puede estar vacío."
+                    "El identificador no puede estar vacío."
             );
         }
 
@@ -59,15 +41,17 @@ public class Seccion implements Serializable {
             );
         }
 
-        if (horario == null || horario.trim().isEmpty()) {
+        if (horario == null
+                || horario.trim().isEmpty()) {
+
             throw new IllegalArgumentException(
-                    "El horario de la sección no puede estar vacío."
+                    "El horario no puede estar vacío."
             );
         }
 
         if (asignatura == null) {
             throw new IllegalArgumentException(
-                    "La sección debe pertenecer a una asignatura."
+                    "La asignatura no puede ser nula."
             );
         }
 
@@ -79,55 +63,43 @@ public class Seccion implements Serializable {
         this.inscripciones = new ArrayList<>();
     }
 
-    /**
-     * Asigna un académico como docente de la sección.
-     *
-     * Mantiene la relación bidireccional:
-     *
-     * Seccion -> Academico
-     * Academico -> Seccion
-     *
-     * Si la sección ya tenía otro docente, primero se elimina
-     * de la lista de secciones del docente anterior.
-     *
-     * @param nuevoDocente académico que dictará la sección
-     */
-    public void asignarDocente(Academico nuevoDocente) {
+    public void asignarDocente(Academico docente) {
 
-        if (nuevoDocente == null) {
+        if (docente == null) {
             throw new IllegalArgumentException(
                     "El docente no puede ser nulo."
             );
         }
 
-        /*
-         * Si ya tiene asignado al mismo docente,
-         * solamente aseguramos que la sección esté
-         * incluida en su lista.
-         */
-        if (this.docenteDicta == nuevoDocente) {
-            nuevoDocente.agregarSeccionInterna(this);
+        if (this.docenteDicta == docente) {
+            docente.agregarSeccionInterna(this);
             return;
         }
 
-        Academico docenteAnterior = this.docenteDicta;
+        Academico docenteAnterior =
+                this.docenteDicta;
 
-        /*
-         * Actualizamos la referencia de la sección.
-         */
-        this.docenteDicta = nuevoDocente;
+        this.docenteDicta = docente;
 
-        /*
-         * Eliminamos la sección del docente anterior.
-         */
         if (docenteAnterior != null) {
             docenteAnterior.removerSeccionInterna(this);
         }
 
-        /*
-         * Agregamos la sección al docente nuevo.
-         */
-        nuevoDocente.agregarSeccionInterna(this);
+        docente.agregarSeccionInterna(this);
+    }
+
+    void agregarInscripcionInterna(
+            Inscripcion inscripcion
+    ) {
+        if (inscripcion == null) {
+            throw new IllegalArgumentException(
+                    "La inscripción no puede ser nula."
+            );
+        }
+
+        if (!inscripciones.contains(inscripcion)) {
+            inscripciones.add(inscripcion);
+        }
     }
 
     public char getIdGrupo() {

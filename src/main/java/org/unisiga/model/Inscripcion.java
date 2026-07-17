@@ -6,11 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Clase de asociación que resuelve la relación N:M
- * entre Estudiante y Seccion.
- *
- * En el UML del profesor aparece con el nombre Matricula.
- * En el código se utiliza el nombre Inscripcion.
+ * Clase de Asociación que resuelve la relación N:M entre Estudiante y Sección.
  */
 public class Inscripcion implements Serializable {
 
@@ -19,14 +15,27 @@ public class Inscripcion implements Serializable {
     private Estudiante estudiante;
     private Seccion seccion;
 
-    // Posibles estados:
-    // "Inscrito", "Aprobado" o "Reprobado".
     private String estadoInscripcion;
-
     private Date fechaInscripcion;
+
     private List<Calificacion> calificaciones;
 
-    public Inscripcion(Estudiante estudiante, Seccion seccion) {
+    public Inscripcion(
+            Estudiante estudiante,
+            Seccion seccion
+    ) {
+        if (estudiante == null) {
+            throw new IllegalArgumentException(
+                    "El estudiante no puede ser nulo."
+            );
+        }
+
+        if (seccion == null) {
+            throw new IllegalArgumentException(
+                    "La sección no puede ser nula."
+            );
+        }
+
         this.estudiante = estudiante;
         this.seccion = seccion;
         this.estadoInscripcion = "Inscrito";
@@ -47,6 +56,24 @@ public class Inscripcion implements Serializable {
     }
 
     public void setEstadoInscripcion(String estado) {
+
+        if (estado == null) {
+            throw new IllegalArgumentException(
+                    "El estado no puede ser nulo."
+            );
+        }
+
+        boolean valido =
+                estado.equalsIgnoreCase("Inscrito")
+                || estado.equalsIgnoreCase("Aprobado")
+                || estado.equalsIgnoreCase("Reprobado");
+
+        if (!valido) {
+            throw new IllegalArgumentException(
+                    "El estado de inscripción no es válido."
+            );
+        }
+
         this.estadoInscripcion = estado;
     }
 
