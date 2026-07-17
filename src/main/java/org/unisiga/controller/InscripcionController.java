@@ -21,6 +21,8 @@ import org.unisiga.view.FrmInscripcion;
  */
 public class InscripcionController implements ActionListener {
 
+    private static final String RUTA_DATOS = "datos/unisiga.dat";
+
     private List<Estudiante> estudiantesDb;
     private List<Asignatura> asignaturasDb;
     private ArchivoSistema archivoSistema;
@@ -98,6 +100,8 @@ public class InscripcionController implements ActionListener {
                             codigoAsignatura,
                             idGrupo
                     );
+
+            guardarDatos(RUTA_DATOS);
 
             JOptionPane.showMessageDialog(
                     vista,
